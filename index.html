@@ -238,6 +238,7 @@
       const [selectedUtilities, setSelectedUtilities] = useState(new Set());
       const [showBulkActions, setShowBulkActions] = useState(false);
       const [reassignModal, setReassignModal] = useState(null); // { utility, task }
+      const [filterAssignee, setFilterAssignee] = useState('all'); // New filter for assignee
       
       // Team members who can be assigned tasks
       const teamMembers = [
@@ -249,7 +250,7 @@
       ];
 
       const filteredUtilities = useMemo(() => {
-        let filtered = [...utilities];
+        let filtered = utilities.filter(() => true); // Create new array
 
         if (searchTerm) {
           filtered = filtered.filter(u => 
@@ -266,6 +267,19 @@
           filtered = filtered.filter(u => 
             u.tasks.some(t => t.category === filterCategory && t.status !== 'completed')
           );
+        }
+
+        if (filterAssignee !== 'all') {
+          filtered = filtered.filter(u => {
+            const utilityHash = u.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            const shouldHaveAssignee = utilityHash % 4 !== 0;
+            if (filterAssignee === 'unassigned') {
+              return !shouldHaveAssignee;
+            } else {
+              const assignedMemberId = parseInt(filterAssignee);
+              return shouldHaveAssignee && (utilityHash % teamMembers.length) === (assignedMemberId - 1);
+            }
+          });
         }
 
         switch(sortBy) {
@@ -286,7 +300,7 @@
         }
 
         return filtered;
-      }, [utilities, searchTerm, filterStatus, filterCategory, sortBy]);
+      }, [utilities, searchTerm, filterStatus, filterCategory, sortBy, filterAssignee]);
 
       const thisWeekUtilities = useMemo(() => {
         return utilities
@@ -1003,6 +1017,29 @@
               React.createElement('option', { value: 'deadline' }, 'Sort: Deadline (Soonest First)'),
               React.createElement('option', { value: 'activity' }, 'Sort: Last Activity (Oldest First)'),
               React.createElement('option', { value: 'name' }, 'Sort: Name (A-Z)')
+            ),
+
+            React.createElement('select', {
+              value: filterAssignee,
+              onChange: (e) => setFilterAssignee(e.target.value),
+              style: {
+                padding: '0.75rem 1rem',
+                background: 'rgba(30, 41, 59, 0.5)',
+                border: '1px solid rgba(148, 163, 184, 0.2)',
+                borderRadius: '0.5rem',
+                color: 'rgb(248, 250, 252)',
+                fontSize: '0.875rem',
+                cursor: 'pointer',
+                minWidth: '200px'
+              }
+            },
+              React.createElement('option', { value: 'all' }, '👥 All Team Members'),
+              React.createElement('option', { value: 'unassigned' }, '⚠️ Unassigned'),
+              ...teamMembers.map(member => 
+                React.createElement('option', { key: member.id, value: member.id.toString() }, 
+                  `${member.avatar} ${member.name}`
+                )
+              )
             )
           ),
 
@@ -1175,66 +1212,81 @@
                   style: { 
                     display: 'flex', 
                     alignItems: 'center', 
-                    gap: '0.5rem',
-                    cursor: 'pointer'
+                    gap: '0.75rem',
+                    cursor: 'pointer',
+                    padding: '0.5rem',
+                    borderRadius: '0.5rem',
+                    transition: 'all 0.2s'
                   },
                   onClick: (e) => {
                     e.stopPropagation();
                     alert(`Reassign Utility\n\nIn production, this would:\n• Show team member selector\n• Allow reassignment to different person\n• Update workload distribution\n\nCurrently assigned to: ${assignedMember.name}`);
+                  },
+                  onMouseEnter: (e) => {
+                    e.currentTarget.style.background = `${assignedMember.color}15`;
+                  },
+                  onMouseLeave: (e) => {
+                    e.currentTarget.style.background = 'transparent';
                   }
                 },
                   React.createElement('div', {
                     style: {
-                      fontSize: '1.25rem',
-                      width: '28px',
-                      height: '28px',
+                      fontSize: '1.5rem',
+                      width: '40px',
+                      height: '40px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      background: `${assignedMember.color}20`,
+                      background: `${assignedMember.color}25`,
                       borderRadius: '50%',
-                      border: `2px solid ${assignedMember.color}`
+                      border: `2px solid ${assignedMember.color}`,
+                      flexShrink: 0
                     }
                   }, assignedMember.avatar),
                   React.createElement('div', null,
                     React.createElement('div', {
                       style: { 
                         fontSize: '0.875rem', 
-                        fontWeight: '500',
-                        color: assignedMember.color
+                        fontWeight: '600',
+                        color: assignedMember.color,
+                        marginBottom: '0.125rem'
                       }
                     }, assignedMember.name),
                     React.createElement('div', {
                       style: { 
                         fontSize: '0.625rem', 
-                        color: 'rgb(148, 163, 184)'
+                        color: 'rgb(148, 163, 184)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em'
                       }
                     }, assignedMember.role)
                   )
                 ) : React.createElement('div', {
                   style: {
                     cursor: 'pointer',
-                    padding: '0.5rem',
-                    borderRadius: '0.375rem',
-                    border: '1px dashed rgba(148, 163, 184, 0.3)',
-                    fontSize: '0.75rem',
-                    color: 'rgb(148, 163, 184)',
+                    padding: '0.75rem 1rem',
+                    borderRadius: '0.5rem',
+                    border: '2px dashed rgba(251, 146, 60, 0.4)',
+                    fontSize: '0.875rem',
+                    color: 'rgb(251, 146, 60)',
                     textAlign: 'center',
-                    transition: 'all 0.2s'
+                    fontWeight: '600',
+                    transition: 'all 0.2s',
+                    background: 'rgba(251, 146, 60, 0.05)'
                   },
                   onClick: (e) => {
                     e.stopPropagation();
                     alert('Assign Utility\n\nIn production, this would:\n• Show team member selector\n• Assign to selected person\n• Update their workload\n• Send notification');
                   },
                   onMouseEnter: (e) => {
-                    e.currentTarget.style.background = 'rgba(148, 163, 184, 0.1)';
-                    e.currentTarget.style.borderColor = 'rgba(148, 163, 184, 0.5)';
+                    e.currentTarget.style.background = 'rgba(251, 146, 60, 0.15)';
+                    e.currentTarget.style.borderColor = 'rgba(251, 146, 60, 0.6)';
                   },
                   onMouseLeave: (e) => {
-                    e.currentTarget.style.background = 'transparent';
-                    e.currentTarget.style.borderColor = 'rgba(148, 163, 184, 0.3)';
+                    e.currentTarget.style.background = 'rgba(251, 146, 60, 0.05)';
+                    e.currentTarget.style.borderColor = 'rgba(251, 146, 60, 0.4)';
                   }
-                }, 'Unassigned'),
+                }, '⚠️ Unassigned'),
 
                 // Deadline Column
                 React.createElement('div', {
