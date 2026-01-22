@@ -450,18 +450,57 @@
       };
 
       const stats = useMemo(() => {
-        const critical = utilities.filter(u => u.healthStatus === 'critical').length;
-        const warning = utilities.filter(u => u.healthStatus === 'warning').length;
-        const healthy = utilities.filter(u => u.healthStatus === 'healthy').length;
-        const blockerTasks = utilities.reduce((sum, u) => 
-          sum + u.tasks.filter(t => t.category === 'blocker' && t.status !== 'completed').length, 0
-        );
-        const overdueCount = utilities.filter(u => 
-          u.tasks.some(t => t.status === 'overdue')
+        const complianceIssues = utilities.filter(u => 
+          u.tasks.some(t => t.category === 'compliance' && (t.status === 'overdue' || t.daysUntilDue <= 3))
         ).length;
         
-        return { critical, warning, healthy, blockerTasks, overdueCount };
+        const criticalBlockers = utilities.filter(u => 
+          u.tasks.some(t => t.category === 'blocker' && (t.status === 'overdue' || t.daysUntilDue <= 0))
+        ).length;
+        
+        const dueThisWeek = utilities.filter(u => 
+          u.tasks.some(t => t.daysUntilDue >= 0 && t.daysUntilDue <= 7)
+        ).length;
+        
+        const noResponse = utilities.filter(u => 
+          u.lastActivity >= 7
+        ).length;
+        
+        // Simulate completed this week (in production would track actual completions)
+        const completedThisWeek = Math.floor(utilities.length * 0.15); // ~15% completion rate
+        
+        return { complianceIssues, criticalBlockers, dueThisWeek, noResponse, completedThisWeek };
       }, [utilities]);
+
+      // Click handlers for action stats
+      const handleComplianceClick = () => {
+        setView('queue');
+        setFilterCategory('compliance');
+        setFilterStatus('all');
+        setSortBy('deadline');
+      };
+
+      const handleBlockersClick = () => {
+        setView('queue');
+        setFilterCategory('blocker');
+        setFilterStatus('critical');
+        setSortBy('risk');
+      };
+
+      const handleDueThisWeekClick = () => {
+        setView('thisweek');
+      };
+
+      const handleNoResponseClick = () => {
+        setView('queue');
+        setFilterCategory('all');
+        setFilterStatus('all');
+        setSortBy('activity');
+      };
+
+      const handleCompletedClick = () => {
+        alert('Completed This Week ✅\n\nIn production, this would show:\n• List of completed tasks\n• Who completed them\n• Timeline of completions\n• Celebration messages 🎉\n\nGreat job team!');
+      };
 
       const getStatusColor = (status) => {
         switch(status) {
@@ -615,7 +654,7 @@
           )
         ),
 
-        // Stats Bar
+        // Action Center Stats Bar
         React.createElement('div', {
           style: {
             padding: '2rem',
@@ -624,11 +663,84 @@
             gap: '1.5rem'
           }
         },
-          React.createElement(StatCard, { label: 'Critical', value: stats.critical, color: 'rgb(239, 68, 68)', icon: React.createElement(AlertTriangle, { size: 20 }) }),
-          React.createElement(StatCard, { label: 'At Risk', value: stats.warning, color: 'rgb(251, 146, 60)', icon: React.createElement(Clock, { size: 20 }) }),
-          React.createElement(StatCard, { label: 'Healthy', value: stats.healthy, color: 'rgb(34, 197, 94)', icon: React.createElement(CheckCircle, { size: 20 }) }),
-          React.createElement(StatCard, { label: 'Critical Blockers', value: stats.blockerTasks, color: 'rgb(239, 68, 68)', icon: React.createElement(AlertTriangle, { size: 20 }) }),
-          React.createElement(StatCard, { label: 'Past Deadline', value: stats.overdueCount, color: 'rgb(251, 146, 60)', icon: React.createElement(Clock, { size: 20 }) })
+          React.createElement(ActionStatCard, { 
+            label: 'Compliance Issues', 
+            value: stats.complianceIssues, 
+            color: 'rgb(239, 68, 68)', 
+            icon: '🚨',
+            onClick: handleComplianceClick,
+            description: 'Regulatory risk'
+          }),
+          React.createElement(ActionStatCard, { 
+            label: 'Critical Blockers', 
+            value: stats.criticalBlockers, 
+            color: 'rgb(251, 146, 60)', 
+            icon: '⚡',
+            onClick: handleBlockersClick,
+            description: 'Payments frozen'
+          }),
+          React.createElement(ActionStatCard, { 
+            label: 'Due This Week', 
+            value: stats.dueThisWeek, 
+            color: 'rgb(234, 179, 8)', 
+            icon: '📅',
+            onClick: handleDueThisWeekClick,
+            description: 'Proactive window'
+          }),
+          React.createElement(ActionStatCard, { 
+            label: 'No Response (7+ days)', 
+            value: stats.noResponse, 
+            color: 'rgb(147, 51, 234)', 
+            icon: '🔕',
+            onClick: handleNoResponseClick,
+            description: 'Needs escalation'
+          }),
+          React.createElement(ActionStatCard, { 
+            label: 'Completed This Week', 
+            value: stats.completedThisWeek, 
+            color: 'rgb(34, 197, 94)', 
+            icon: '✅',
+            onClick: handleCompletedClick,
+            description: 'Team progress'
+          })
+        ),
+
+        // Money at Risk Summary Banner
+        React.createElement('div', {
+          style: {
+            margin: '0 2rem 2rem 2rem',
+            padding: '1rem 1.5rem',
+            background: 'linear-gradient(135deg, rgba(251, 146, 60, 0.1) 0%, rgba(239, 68, 68, 0.1) 100%)',
+            border: '1px solid rgba(251, 146, 60, 0.3)',
+            borderRadius: '0.5rem',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }
+        },
+          React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '1rem' } },
+            React.createElement('div', {
+              style: { fontSize: '2rem' }
+            }, '💰'),
+            React.createElement('div', null,
+              React.createElement('div', {
+                style: { fontSize: '0.75rem', color: 'rgb(148, 163, 184)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '600' }
+              }, 'Money at Risk'),
+              React.createElement('div', {
+                style: { fontSize: '1.25rem', fontWeight: '700', color: 'rgb(251, 146, 60)', marginTop: '0.25rem' }
+              }, `$${(utilities.filter(u => u.tasks.some(t => t.category === 'blocker')).length * 125000).toLocaleString()}`)
+            )
+          ),
+          React.createElement('div', {
+            style: { fontSize: '0.875rem', color: 'rgb(203, 213, 225)', textAlign: 'right' }
+          },
+            React.createElement('div', null, 
+              `${utilities.filter(u => u.tasks.some(t => t.category === 'blocker')).length} utilities with blocked disbursements`
+            ),
+            React.createElement('div', {
+              style: { fontSize: '0.75rem', color: 'rgb(148, 163, 184)', marginTop: '0.25rem' }
+            }, `~${(utilities.filter(u => u.tasks.some(t => t.category === 'blocker')).reduce((sum, u) => sum + u.customerCount, 0)).toLocaleString()} customers waiting`)
+          )
         ),
 
         // Bulk Actions Toolbar
@@ -2325,15 +2437,30 @@
       );
     };
 
-    const StatCard = ({ label, value, color, icon }) => 
+    const ActionStatCard = ({ label, value, color, icon, onClick, description }) => 
       React.createElement('div', {
+        onClick: onClick,
         style: {
           padding: '1.5rem',
           background: 'rgba(30, 41, 59, 0.5)',
           border: '1px solid rgba(148, 163, 184, 0.1)',
           borderRadius: '0.75rem',
           position: 'relative',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          cursor: 'pointer',
+          transition: 'all 0.2s'
+        },
+        onMouseEnter: (e) => {
+          e.currentTarget.style.background = 'rgba(30, 41, 59, 0.8)';
+          e.currentTarget.style.border = `1px solid ${color}40`;
+          e.currentTarget.style.transform = 'translateY(-2px)';
+          e.currentTarget.style.boxShadow = `0 4px 12px ${color}20`;
+        },
+        onMouseLeave: (e) => {
+          e.currentTarget.style.background = 'rgba(30, 41, 59, 0.5)';
+          e.currentTarget.style.border = '1px solid rgba(148, 163, 184, 0.1)';
+          e.currentTarget.style.transform = 'translateY(0)';
+          e.currentTarget.style.boxShadow = 'none';
         }
       },
         React.createElement('div', {
@@ -2341,13 +2468,13 @@
             position: 'absolute',
             top: '1rem',
             right: '1rem',
-            color: `${color}40`,
-            opacity: 0.5
+            fontSize: '2rem',
+            opacity: 0.3
           }
         }, icon),
         React.createElement('div', {
           style: {
-            fontSize: '2rem',
+            fontSize: '2.5rem',
             fontWeight: '700',
             color,
             marginBottom: '0.5rem'
@@ -2356,10 +2483,31 @@
         React.createElement('div', {
           style: {
             fontSize: '0.875rem',
-            color: 'rgb(148, 163, 184)',
-            fontWeight: '500'
+            color: 'rgb(203, 213, 225)',
+            fontWeight: '600',
+            marginBottom: '0.25rem'
           }
-        }, label)
+        }, label),
+        React.createElement('div', {
+          style: {
+            fontSize: '0.75rem',
+            color: 'rgb(148, 163, 184)',
+            fontStyle: 'italic'
+          }
+        }, description),
+        React.createElement('div', {
+          style: {
+            marginTop: '0.75rem',
+            fontSize: '0.75rem',
+            color,
+            fontWeight: '500',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.25rem'
+          }
+        }, 
+          'Click to view →'
+        )
       );
 
     // Render the app
