@@ -1312,430 +1312,117 @@
         ),
 
         view === 'analytics' && React.createElement('div', { style: { padding: '0 2rem 2rem' } },
-          // Search Bar
+        view === 'analytics' && React.createElement('div', { style: { padding: '0 2rem 2rem' } },
+          // Executive Summary Header
           React.createElement('div', {
             style: {
               marginBottom: '2rem',
-              position: 'relative'
-            }
-          },
-            React.createElement(Search, {
-              size: 20,
-              style: {
-                position: 'absolute',
-                left: '1rem',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: 'rgb(148, 163, 184)',
-                zIndex: 10
-              }
-            }),
-            React.createElement('input', {
-              type: 'text',
-              placeholder: 'Search for a utility by name or city...',
-              value: searchTerm,
-              onChange: (e) => setSearchTerm(e.target.value),
-              style: {
-                width: '100%',
-                padding: '1rem 1rem 1rem 3rem',
-                background: 'rgba(30, 41, 59, 0.5)',
-                border: '1px solid rgba(148, 163, 184, 0.2)',
-                borderRadius: '0.5rem',
-                color: 'rgb(248, 250, 252)',
-                fontSize: '1rem',
-                outline: 'none'
-              }
-            }),
-            searchTerm && React.createElement('button', {
-              onClick: () => setSearchTerm(''),
-              style: {
-                position: 'absolute',
-                right: '1rem',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'transparent',
-                border: 'none',
-                color: 'rgb(148, 163, 184)',
-                cursor: 'pointer',
-                fontSize: '1.25rem',
-                padding: '0.25rem',
-                zIndex: 10
-              }
-            }, '×')
-          ),
-
-          // Search Results
-          searchTerm && React.createElement('div', {
-            style: {
-              marginBottom: '2rem',
-              background: 'rgba(59, 130, 246, 0.1)',
+              padding: '2rem',
+              background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(147, 51, 234, 0.15) 100%)',
               border: '1px solid rgba(59, 130, 246, 0.3)',
-              borderRadius: '0.75rem',
-              overflow: 'hidden'
+              borderRadius: '1rem'
             }
           },
-            React.createElement('div', {
-              style: {
-                padding: '1rem 1.5rem',
-                background: 'rgba(15, 23, 42, 0.5)',
-                borderBottom: '1px solid rgba(59, 130, 246, 0.2)'
-              }
-            },
-              React.createElement('h3', {
-                style: { margin: 0, fontSize: '1rem', fontWeight: '600', color: 'rgb(147, 197, 253)' }
-              }, `Search Results (${filteredUtilities.length})`)
-            ),
-            React.createElement('div', { style: { padding: '1rem' } },
-              filteredUtilities.length === 0 ? 
-                React.createElement('div', {
-                  style: { padding: '2rem', textAlign: 'center', color: 'rgb(148, 163, 184)' }
-                }, `No utilities found matching "${searchTerm}"`) :
-                React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '0.75rem' } },
-                  filteredUtilities.map(utility =>
-                    React.createElement('div', {
-                      key: utility.id,
-                      onClick: () => setSelectedUtility(utility),
-                      style: {
-                        background: 'rgba(30, 41, 59, 0.5)',
-                        border: '1px solid rgba(148, 163, 184, 0.1)',
-                        borderRadius: '0.5rem',
-                        padding: '1rem',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                      }
-                    },
-                      React.createElement('div', null,
-                        React.createElement('div', {
-                          style: { fontWeight: '600', fontSize: '1rem', marginBottom: '0.25rem' }
-                        }, utility.name),
-                        React.createElement('div', {
-                          style: { fontSize: '0.875rem', color: 'rgb(148, 163, 184)' }
-                        }, `${utility.city} • ${utility.tasks.length} active tasks • Risk Score: ${utility.riskScore}`)
-                      ),
-                      React.createElement(ChevronRight, { size: 20, style: { color: 'rgb(148, 163, 184)' } })
-                    )
-                  )
-                )
-            )
+            React.createElement('h2', {
+              style: { margin: '0 0 1rem 0', fontSize: '2rem', fontWeight: '700', color: 'rgb(147, 197, 253)' }
+            }, '📊 Executive Dashboard'),
+            React.createElement('p', {
+              style: { margin: 0, fontSize: '1rem', color: 'rgb(203, 213, 225)' }
+            }, `Program Status as of ${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`)
           ),
 
-          // Critical Utilities
-          React.createElement('div', {
-            style: {
-              marginBottom: '2rem',
-              background: 'rgba(239, 68, 68, 0.1)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
-              borderRadius: '0.75rem',
-              overflow: 'hidden'
-            }
-          },
-            React.createElement('div', {
-              style: {
-                padding: '1.5rem',
-                background: 'rgba(15, 23, 42, 0.5)',
-                borderBottom: '1px solid rgba(239, 68, 68, 0.2)'
-              }
-            },
-              React.createElement('h2', {
-                style: { margin: '0 0 0.5rem 0', fontSize: '1.5rem', fontWeight: '700', color: 'rgb(239, 68, 68)' }
-              }, `Critical Utilities (${utilities.filter(u => u.healthStatus === 'critical').length})`),
-              React.createElement('p', {
-                style: { margin: 0, fontSize: '0.875rem', color: 'rgb(203, 213, 225)' }
-              }, 'Utilities with blocker tasks overdue or multiple critical issues')
-            ),
-            React.createElement('div', { style: { padding: '1rem' } },
-              utilities.filter(u => u.healthStatus === 'critical').length === 0 ?
-                React.createElement('div', {
-                  style: { padding: '3rem', textAlign: 'center' }
-                },
-                  React.createElement(CheckCircle, { size: 48, style: { color: 'rgb(34, 197, 94)', marginBottom: '1rem' } }),
-                  React.createElement('h3', {
-                    style: { margin: '0 0 0.5rem 0', fontSize: '1.25rem', fontWeight: '600' }
-                  }, 'No Critical Issues'),
-                  React.createElement('p', {
-                    style: { margin: 0, fontSize: '0.875rem', color: 'rgb(148, 163, 184)' }
-                  }, 'All utilities are in good standing')
-                ) :
-                utilities.filter(u => u.healthStatus === 'critical')
-                  .sort((a, b) => b.riskScore - a.riskScore)
-                  .map(utility => {
-                    const criticalTasks = utility.tasks.filter(t => 
-                      t.status === 'overdue' || (t.category === 'blocker' && t.daysUntilDue <= 3)
-                    );
-
-                    return React.createElement('div', {
-                      key: utility.id,
-                      onClick: () => setSelectedUtility(utility),
-                      style: {
-                        background: 'rgba(30, 41, 59, 0.5)',
-                        border: '1px solid rgba(239, 68, 68, 0.2)',
-                        borderRadius: '0.5rem',
-                        marginBottom: '1rem',
-                        cursor: 'pointer'
-                      }
-                    },
-                      React.createElement('div', {
-                        style: {
-                          padding: '1.25rem',
-                          borderBottom: '1px solid rgba(148, 163, 184, 0.1)'
-                        }
-                      },
-                        React.createElement('div', {
-                          style: { display: 'flex', justifyContent: 'space-between', alignItems: 'start' }
-                        },
-                          React.createElement('div', null,
-                            React.createElement('h3', {
-                              style: { margin: '0 0 0.5rem 0', fontSize: '1.125rem', fontWeight: '600' }
-                            }, utility.name),
-                            React.createElement('div', {
-                              style: { fontSize: '0.875rem', color: 'rgb(148, 163, 184)' }
-                            }, `${utility.city} • ${utility.customerCount.toLocaleString()} customers`)
-                          ),
-                          React.createElement('div', { style: { textAlign: 'right' } },
-                            React.createElement('div', {
-                              style: { fontSize: '1.5rem', fontWeight: '700', color: 'rgb(239, 68, 68)', marginBottom: '0.25rem' }
-                            }, utility.riskScore),
-                            React.createElement('div', {
-                              style: { fontSize: '0.75rem', color: 'rgb(148, 163, 184)' }
-                            }, 'Risk Score')
-                          )
-                        )
-                      ),
-                      React.createElement('div', { style: { padding: '1rem 1.25rem' } },
-                        React.createElement('div', {
-                          style: {
-                            fontSize: '0.75rem',
-                            fontWeight: '600',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.05em',
-                            color: 'rgb(239, 68, 68)',
-                            marginBottom: '0.75rem'
-                          }
-                        }, `Critical Issues (${criticalTasks.length})`),
-                        criticalTasks.slice(0, 3).map(task =>
-                          React.createElement('div', {
-                            key: task.id,
-                            style: {
-                              padding: '0.75rem',
-                              background: 'rgba(239, 68, 68, 0.05)',
-                              border: '1px solid rgba(239, 68, 68, 0.2)',
-                              borderRadius: '0.375rem',
-                              marginBottom: '0.5rem'
-                            }
-                          },
-                            React.createElement('div', {
-                              style: { fontWeight: '600', marginBottom: '0.25rem' }
-                            }, task.name),
-                            React.createElement('div', {
-                              style: { fontSize: '0.75rem', color: 'rgb(148, 163, 184)' }
-                            }, `${task.assignedTo.name} • ${task.daysUntilDue < 0 ? `${Math.abs(task.daysUntilDue)}d overdue` : `Due in ${task.daysUntilDue}d`}`)
-                          )
-                        )
-                      )
-                    );
-                  })
-            )
-          ),
-
-          // At-Risk Utilities
-          React.createElement('div', {
-            style: {
-              marginBottom: '2rem',
-              background: 'rgba(251, 146, 60, 0.1)',
-              border: '1px solid rgba(251, 146, 60, 0.3)',
-              borderRadius: '0.75rem',
-              overflow: 'hidden'
-            }
-          },
-            React.createElement('div', {
-              style: {
-                padding: '1.25rem 1.5rem',
-                background: 'rgba(15, 23, 42, 0.5)',
-                borderBottom: '1px solid rgba(251, 146, 60, 0.2)'
-              }
-            },
-              React.createElement('h2', {
-                style: { margin: '0 0 0.25rem 0', fontSize: '1.25rem', fontWeight: '700', color: 'rgb(251, 146, 60)' }
-              }, `At-Risk Utilities (${utilities.filter(u => u.healthStatus === 'warning').length})`),
-              React.createElement('p', {
-                style: { margin: 0, fontSize: '0.875rem', color: 'rgb(203, 213, 225)' }
-              }, 'Utilities with upcoming deadlines or inactive tasks')
-            ),
-            React.createElement('div', {
-              style: { padding: '1rem', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }
-            },
-              utilities.filter(u => u.healthStatus === 'warning')
-                .sort((a, b) => b.riskScore - a.riskScore)
-                .slice(0, 6)
-                .map(utility =>
-                  React.createElement('div', {
-                    key: utility.id,
-                    onClick: () => setSelectedUtility(utility),
-                    style: {
-                      background: 'rgba(30, 41, 59, 0.5)',
-                      border: '1px solid rgba(251, 146, 60, 0.2)',
-                      borderRadius: '0.5rem',
-                      padding: '1rem',
-                      cursor: 'pointer'
-                    }
-                  },
-                    React.createElement('div', {
-                      style: { display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }
-                    },
-                      React.createElement('div', null,
-                        React.createElement('div', {
-                          style: { fontWeight: '600', fontSize: '1rem', marginBottom: '0.25rem' }
-                        }, utility.name),
-                        React.createElement('div', {
-                          style: { fontSize: '0.75rem', color: 'rgb(148, 163, 184)' }
-                        }, utility.city)
-                      ),
-                      React.createElement('div', {
-                        style: { fontSize: '1.25rem', fontWeight: '700', color: 'rgb(251, 146, 60)' }
-                      }, utility.riskScore)
-                    ),
-                    React.createElement('div', {
-                      style: {
-                        fontSize: '0.75rem',
-                        color: 'rgb(148, 163, 184)',
-                        paddingTop: '0.75rem',
-                        borderTop: '1px solid rgba(148, 163, 184, 0.1)'
-                      }
-                    }, `${utility.tasks.filter(t => t.status === 'urgent' || t.status === 'overdue').length} urgent tasks • Next deadline: ${utility.nextDeadline}d`)
-                  )
-                )
-            )
-          ),
-
-          // Needs Immediate Attention Widget
-          React.createElement('div', {
-            style: {
-              marginBottom: '2rem',
-              background: 'rgba(147, 51, 234, 0.1)',
-              border: '1px solid rgba(147, 51, 234, 0.3)',
-              borderRadius: '0.75rem',
-              overflow: 'hidden'
-            }
-          },
-            React.createElement('div', {
-              style: {
-                padding: '1.25rem 1.5rem',
-                background: 'rgba(15, 23, 42, 0.5)',
-                borderBottom: '1px solid rgba(147, 51, 234, 0.2)',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }
-            },
-              React.createElement('div', null,
-                React.createElement('h2', {
-                  style: { margin: '0 0 0.25rem 0', fontSize: '1.25rem', fontWeight: '700', color: 'rgb(192, 132, 252)' }
-                }, '⚡ Needs Immediate Attention'),
-                React.createElement('p', {
-                  style: { margin: 0, fontSize: '0.875rem', color: 'rgb(203, 213, 225)' }
-                }, 'Top 5 utilities requiring action today')
-              )
-            ),
-            React.createElement('div', { style: { padding: '1rem' } },
-              utilities
-                .sort((a, b) => {
-                  // Sort by: overdue blockers first, then by risk score
-                  const aHasOverdueBlocker = a.tasks.some(t => t.category === 'blocker' && t.daysUntilDue < 0);
-                  const bHasOverdueBlocker = b.tasks.some(t => t.category === 'blocker' && t.daysUntilDue < 0);
-                  if (aHasOverdueBlocker && !bHasOverdueBlocker) return -1;
-                  if (!aHasOverdueBlocker && bHasOverdueBlocker) return 1;
-                  return b.riskScore - a.riskScore;
-                })
-                .slice(0, 5)
-                .map((utility, idx) => {
-                  const mostUrgentTask = utility.tasks
-                    .sort((a, b) => {
-                      if (a.category === 'blocker' && b.category !== 'blocker') return -1;
-                      if (a.category !== 'blocker' && b.category === 'blocker') return 1;
-                      return a.daysUntilDue - b.daysUntilDue;
-                    })[0];
-
-                  return React.createElement('div', {
-                    key: utility.id,
-                    style: {
-                      background: 'rgba(30, 41, 59, 0.5)',
-                      border: '1px solid rgba(147, 51, 234, 0.2)',
-                      borderRadius: '0.5rem',
-                      padding: '1rem',
-                      marginBottom: idx < 4 ? '0.75rem' : 0,
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      cursor: 'pointer'
-                    },
-                    onClick: () => setSelectedUtility(utility)
-                  },
-                    React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '1rem', flex: 1 } },
-                      React.createElement('div', {
-                        style: {
-                          fontSize: '1.5rem',
-                          fontWeight: '700',
-                          color: 'rgb(192, 132, 252)',
-                          minWidth: '2rem'
-                        }
-                      }, `#${idx + 1}`),
-                      React.createElement('div', { style: { flex: 1 } },
-                        React.createElement('div', {
-                          style: { fontWeight: '600', marginBottom: '0.25rem', fontSize: '1rem' }
-                        }, utility.name),
-                        React.createElement('div', {
-                          style: { fontSize: '0.75rem', color: 'rgb(148, 163, 184)' }
-                        }, mostUrgentTask.name),
-                        React.createElement('div', {
-                          style: {
-                            fontSize: '0.75rem',
-                            color: mostUrgentTask.daysUntilDue < 0 ? 'rgb(239, 68, 68)' : 'rgb(251, 146, 60)',
-                            marginTop: '0.25rem',
-                            fontWeight: '600'
-                          }
-                        }, mostUrgentTask.daysUntilDue < 0 ? `${Math.abs(mostUrgentTask.daysUntilDue)}d OVERDUE` : `Due in ${mostUrgentTask.daysUntilDue}d`)
-                      )
-                    ),
-                    React.createElement('button', {
-                      onClick: (e) => {
-                        e.stopPropagation();
-                        setEmailDraft(generateEmailDraft(utility, mostUrgentTask));
-                      },
-                      style: {
-                        padding: '0.5rem 1rem',
-                        background: 'rgba(147, 51, 234, 0.2)',
-                        border: '1px solid rgb(147, 51, 234)',
-                        borderRadius: '0.375rem',
-                        color: 'rgb(192, 132, 252)',
-                        cursor: 'pointer',
-                        fontSize: '0.875rem',
-                        fontWeight: '500',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        whiteSpace: 'nowrap'
-                      }
-                    },
-                      React.createElement(Send, { size: 14 }),
-                      'Send Now'
-                    )
-                  );
-                })
-            )
-          ),
-
-          // Visual Analytics Section
+          // Key Metrics Grid (3 columns)
           React.createElement('div', {
             style: {
               display: 'grid',
-              gridTemplateColumns: 'repeat(2, 1fr)',
+              gridTemplateColumns: 'repeat(3, 1fr)',
               gap: '1.5rem',
               marginBottom: '2rem'
             }
           },
-            // Task Distribution Bar Chart
+            // Program Participation
+            React.createElement('div', {
+              style: {
+                padding: '1.5rem',
+                background: 'rgba(30, 41, 59, 0.5)',
+                border: '1px solid rgba(34, 197, 94, 0.3)',
+                borderRadius: '0.75rem'
+              }
+            },
+              React.createElement('div', {
+                style: { fontSize: '0.75rem', color: 'rgb(148, 163, 184)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }
+              }, 'Program Participation'),
+              React.createElement('div', {
+                style: { fontSize: '2.5rem', fontWeight: '700', color: 'rgb(34, 197, 94)', marginBottom: '0.5rem' }
+              }, '60'),
+              React.createElement('div', {
+                style: { fontSize: '0.875rem', color: 'rgb(203, 213, 225)' }
+              }, 'Active Utilities'),
+              React.createElement('div', {
+                style: { fontSize: '0.75rem', color: 'rgb(148, 163, 184)', marginTop: '0.5rem' }
+              }, `${utilities.reduce((sum, u) => sum + u.customerCount, 0).toLocaleString()} total customers served`)
+            ),
+
+            // Funds Disbursed (simulated)
+            React.createElement('div', {
+              style: {
+                padding: '1.5rem',
+                background: 'rgba(30, 41, 59, 0.5)',
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+                borderRadius: '0.75rem'
+              }
+            },
+              React.createElement('div', {
+                style: { fontSize: '0.75rem', color: 'rgb(148, 163, 184)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }
+              }, 'Funds Disbursed (YTD)'),
+              React.createElement('div', {
+                style: { fontSize: '2.5rem', fontWeight: '700', color: 'rgb(59, 130, 246)', marginBottom: '0.5rem' }
+              }, '$47.2M'),
+              React.createElement('div', {
+                style: { fontSize: '0.875rem', color: 'rgb(203, 213, 225)', display: 'flex', alignItems: 'center', gap: '0.5rem' }
+              },
+                React.createElement('span', { style: { color: 'rgb(34, 197, 94)' } }, '↗ 12%'),
+                'vs. last quarter'
+              ),
+              React.createElement('div', {
+                style: { fontSize: '0.75rem', color: 'rgb(148, 163, 184)', marginTop: '0.5rem' }
+              }, '94% of annual target ($50M)')
+            ),
+
+            // At-Risk Amount
+            React.createElement('div', {
+              style: {
+                padding: '1.5rem',
+                background: 'rgba(30, 41, 59, 0.5)',
+                border: '1px solid rgba(251, 146, 60, 0.3)',
+                borderRadius: '0.75rem'
+              }
+            },
+              React.createElement('div', {
+                style: { fontSize: '0.75rem', color: 'rgb(148, 163, 184)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }
+              }, 'At-Risk Disbursements'),
+              React.createElement('div', {
+                style: { fontSize: '2.5rem', fontWeight: '700', color: 'rgb(251, 146, 60)', marginBottom: '0.5rem' }
+              }, `$${(utilities.filter(u => u.tasks.some(t => t.category === 'blocker')).length * 125).toLocaleString()}K`),
+              React.createElement('div', {
+                style: { fontSize: '0.875rem', color: 'rgb(203, 213, 225)' }
+              }, `${utilities.filter(u => u.tasks.some(t => t.category === 'blocker')).length} utilities with blockers`),
+              React.createElement('div', {
+                style: { fontSize: '0.75rem', color: 'rgb(148, 163, 184)', marginTop: '0.5rem' }
+              }, 'Requires immediate attention')
+            )
+          ),
+
+          // Program Health & Risk Assessment (2 columns)
+          React.createElement('div', {
+            style: {
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '1.5rem',
+              marginBottom: '2rem'
+            }
+          },
+            // Overall Health Status
             React.createElement('div', {
               style: {
                 background: 'rgba(30, 41, 59, 0.5)',
@@ -1746,26 +1433,149 @@
             },
               React.createElement('div', {
                 style: {
-                  padding: '1.25rem',
+                  padding: '1.25rem 1.5rem',
                   background: 'rgba(15, 23, 42, 0.5)',
                   borderBottom: '1px solid rgba(148, 163, 184, 0.1)'
                 }
               },
                 React.createElement('h3', {
                   style: { margin: 0, fontSize: '1rem', fontWeight: '600' }
-                }, 'Task Distribution by Category')
+                }, '🎯 Overall Program Health')
+              ),
+              React.createElement('div', { style: { padding: '1.5rem' } },
+                // Health distribution
+                React.createElement('div', {
+                  style: {
+                    display: 'flex',
+                    gap: '1rem',
+                    marginBottom: '1.5rem'
+                  }
+                },
+                  React.createElement('div', {
+                    style: {
+                      flex: 1,
+                      padding: '1rem',
+                      background: 'rgba(34, 197, 94, 0.1)',
+                      border: '1px solid rgba(34, 197, 94, 0.3)',
+                      borderRadius: '0.5rem',
+                      textAlign: 'center'
+                    }
+                  },
+                    React.createElement('div', {
+                      style: { fontSize: '2rem', fontWeight: '700', color: 'rgb(34, 197, 94)' }
+                    }, utilities.filter(u => u.healthStatus === 'healthy').length),
+                    React.createElement('div', {
+                      style: { fontSize: '0.75rem', color: 'rgb(148, 163, 184)', marginTop: '0.25rem' }
+                    }, 'Healthy')
+                  ),
+                  React.createElement('div', {
+                    style: {
+                      flex: 1,
+                      padding: '1rem',
+                      background: 'rgba(251, 146, 60, 0.1)',
+                      border: '1px solid rgba(251, 146, 60, 0.3)',
+                      borderRadius: '0.5rem',
+                      textAlign: 'center'
+                    }
+                  },
+                    React.createElement('div', {
+                      style: { fontSize: '2rem', fontWeight: '700', color: 'rgb(251, 146, 60)' }
+                    }, utilities.filter(u => u.healthStatus === 'warning').length),
+                    React.createElement('div', {
+                      style: { fontSize: '0.75rem', color: 'rgb(148, 163, 184)', marginTop: '0.25rem' }
+                    }, 'At Risk')
+                  ),
+                  React.createElement('div', {
+                    style: {
+                      flex: 1,
+                      padding: '1rem',
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      borderRadius: '0.5rem',
+                      textAlign: 'center'
+                    }
+                  },
+                    React.createElement('div', {
+                      style: { fontSize: '2rem', fontWeight: '700', color: 'rgb(239, 68, 68)' }
+                    }, utilities.filter(u => u.healthStatus === 'critical').length),
+                    React.createElement('div', {
+                      style: { fontSize: '0.75rem', color: 'rgb(148, 163, 184)', marginTop: '0.25rem' }
+                    }, 'Critical')
+                  )
+                ),
+                // Success rate
+                React.createElement('div', {
+                  style: {
+                    padding: '1rem',
+                    background: 'rgba(15, 23, 42, 0.5)',
+                    borderRadius: '0.5rem'
+                  }
+                },
+                  React.createElement('div', {
+                    style: {
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      marginBottom: '0.5rem'
+                    }
+                  },
+                    React.createElement('span', {
+                      style: { fontSize: '0.875rem', color: 'rgb(203, 213, 225)' }
+                    }, 'On-Track Rate'),
+                    React.createElement('span', {
+                      style: { fontSize: '0.875rem', fontWeight: '600', color: 'rgb(34, 197, 94)' }
+                    }, `${Math.round((utilities.filter(u => u.healthStatus === 'healthy').length / utilities.length) * 100)}%`)
+                  ),
+                  React.createElement('div', {
+                    style: {
+                      height: '8px',
+                      background: 'rgba(30, 41, 59, 0.5)',
+                      borderRadius: '4px',
+                      overflow: 'hidden'
+                    }
+                  },
+                    React.createElement('div', {
+                      style: {
+                        height: '100%',
+                        width: `${(utilities.filter(u => u.healthStatus === 'healthy').length / utilities.length) * 100}%`,
+                        background: 'rgb(34, 197, 94)',
+                        transition: 'width 0.5s ease'
+                      }
+                    })
+                  )
+                )
+              )
+            ),
+
+            // Risk Breakdown
+            React.createElement('div', {
+              style: {
+                background: 'rgba(30, 41, 59, 0.5)',
+                border: '1px solid rgba(148, 163, 184, 0.1)',
+                borderRadius: '0.75rem',
+                overflow: 'hidden'
+              }
+            },
+              React.createElement('div', {
+                style: {
+                  padding: '1.25rem 1.5rem',
+                  background: 'rgba(15, 23, 42, 0.5)',
+                  borderBottom: '1px solid rgba(148, 163, 184, 0.1)'
+                }
+              },
+                React.createElement('h3', {
+                  style: { margin: 0, fontSize: '1rem', fontWeight: '600' }
+                }, '⚠️ Risk Analysis')
               ),
               React.createElement('div', { style: { padding: '1.5rem' } },
                 ['blocker', 'disbursement-dependent', 'compliance', 'operational'].map(category => {
-                  const count = utilities.reduce((sum, u) => 
-                    sum + u.tasks.filter(t => t.category === category).length, 0
-                  );
-                  const total = utilities.reduce((sum, u) => sum + u.tasks.length, 0);
-                  const percentage = ((count / total) * 100).toFixed(1);
+                  const count = utilities.filter(u => 
+                    u.tasks.some(t => t.category === category && (t.status === 'overdue' || t.daysUntilDue <= 3))
+                  ).length;
+                  const percentage = Math.round((count / utilities.length) * 100);
                   
                   return React.createElement('div', {
                     key: category,
-                    style: { marginBottom: '1.25rem' }
+                    style: { marginBottom: '1rem' }
                   },
                     React.createElement('div', {
                       style: {
@@ -1784,11 +1594,10 @@
                     ),
                     React.createElement('div', {
                       style: {
-                        height: '10px',
+                        height: '6px',
                         background: 'rgba(30, 41, 59, 0.5)',
-                        borderRadius: '5px',
-                        overflow: 'hidden',
-                        position: 'relative'
+                        borderRadius: '3px',
+                        overflow: 'hidden'
                       }
                     },
                       React.createElement('div', {
@@ -1796,17 +1605,26 @@
                           height: '100%',
                           width: `${percentage}%`,
                           background: getCategoryColor(category),
-                          transition: 'width 0.5s ease',
-                          borderRadius: '5px'
+                          transition: 'width 0.5s ease'
                         }
                       })
                     )
                   );
                 })
               )
-            ),
+            )
+          ),
 
-            // Health Status Overview
+          // Team Performance & Upcoming Deadlines (2 columns)
+          React.createElement('div', {
+            style: {
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '1.5rem',
+              marginBottom: '2rem'
+            }
+          },
+            // Team Performance
             React.createElement('div', {
               style: {
                 background: 'rgba(30, 41, 59, 0.5)',
@@ -1817,48 +1635,75 @@
             },
               React.createElement('div', {
                 style: {
-                  padding: '1.25rem',
+                  padding: '1.25rem 1.5rem',
                   background: 'rgba(15, 23, 42, 0.5)',
                   borderBottom: '1px solid rgba(148, 163, 184, 0.1)'
                 }
               },
                 React.createElement('h3', {
                   style: { margin: 0, fontSize: '1rem', fontWeight: '600' }
-                }, 'Overall Health Status')
+                }, '👥 Team Workload Distribution')
               ),
               React.createElement('div', { style: { padding: '1.5rem' } },
-                [
-                  { status: 'critical', label: 'Critical', color: 'rgb(239, 68, 68)' },
-                  { status: 'warning', label: 'At Risk', color: 'rgb(251, 146, 60)' },
-                  { status: 'healthy', label: 'Healthy', color: 'rgb(34, 197, 94)' }
-                ].map(({ status, label, color }) => {
-                  const count = utilities.filter(u => u.healthStatus === status).length;
-                  const percentage = ((count / utilities.length) * 100).toFixed(1);
-                  
+                teamMembers.map(member => {
+                  const memberTasks = utilities.flatMap(u => 
+                    u.tasks.filter(t => {
+                      const hash = (u.id + t.id).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                      return hash % teamMembers.length === (member.id - 1);
+                    })
+                  ).length;
+                  const maxTasks = Math.max(...teamMembers.map(m => 
+                    utilities.flatMap(u => 
+                      u.tasks.filter(t => {
+                        const hash = (u.id + t.id).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                        return hash % teamMembers.length === (m.id - 1);
+                      })
+                    ).length
+                  ));
+                  const percentage = Math.round((memberTasks / maxTasks) * 100);
+
                   return React.createElement('div', {
-                    key: status,
-                    style: { marginBottom: '1.25rem' }
+                    key: member.id,
+                    style: { marginBottom: '1rem' }
                   },
                     React.createElement('div', {
                       style: {
                         display: 'flex',
-                        justifyContent: 'space-between',
-                        marginBottom: '0.5rem',
-                        fontSize: '0.875rem'
+                        alignItems: 'center',
+                        gap: '0.75rem',
+                        marginBottom: '0.5rem'
                       }
                     },
-                      React.createElement('span', {
-                        style: { color: 'rgb(203, 213, 225)', fontWeight: '500' }
-                      }, label),
-                      React.createElement('span', {
-                        style: { color, fontWeight: '600' }
-                      }, `${count} (${percentage}%)`)
+                      React.createElement('div', {
+                        style: {
+                          fontSize: '1.25rem',
+                          width: '32px',
+                          height: '32px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          background: `${member.color}20`,
+                          borderRadius: '50%',
+                          border: `2px solid ${member.color}`
+                        }
+                      }, member.avatar),
+                      React.createElement('div', { style: { flex: 1 } },
+                        React.createElement('div', {
+                          style: { fontSize: '0.875rem', fontWeight: '500', color: member.color }
+                        }, member.name),
+                        React.createElement('div', {
+                          style: { fontSize: '0.75rem', color: 'rgb(148, 163, 184)' }
+                        }, `${memberTasks} tasks`)
+                      ),
+                      React.createElement('div', {
+                        style: { fontSize: '0.875rem', fontWeight: '600', color: member.color }
+                      }, `${percentage}%`)
                     ),
                     React.createElement('div', {
                       style: {
-                        height: '10px',
+                        height: '6px',
                         background: 'rgba(30, 41, 59, 0.5)',
-                        borderRadius: '5px',
+                        borderRadius: '3px',
                         overflow: 'hidden'
                       }
                     },
@@ -1866,25 +1711,82 @@
                         style: {
                           height: '100%',
                           width: `${percentage}%`,
-                          background: color,
-                          transition: 'width 0.5s ease',
-                          borderRadius: '5px'
+                          background: member.color,
+                          transition: 'width 0.5s ease'
                         }
                       })
                     )
                   );
                 })
               )
+            ),
+
+            // Upcoming Deadlines
+            React.createElement('div', {
+              style: {
+                background: 'rgba(30, 41, 59, 0.5)',
+                border: '1px solid rgba(148, 163, 184, 0.1)',
+                borderRadius: '0.75rem',
+                overflow: 'hidden'
+              }
+            },
+              React.createElement('div', {
+                style: {
+                  padding: '1.25rem 1.5rem',
+                  background: 'rgba(15, 23, 42, 0.5)',
+                  borderBottom: '1px solid rgba(148, 163, 184, 0.1)'
+                }
+              },
+                React.createElement('h3', {
+                  style: { margin: 0, fontSize: '1rem', fontWeight: '600' }
+                }, '📅 Upcoming Deadlines (Next 14 Days)')
+              ),
+              React.createElement('div', { style: { padding: '1.5rem' } },
+                [
+                  { label: 'Overdue', color: 'rgb(239, 68, 68)', count: utilities.filter(u => u.tasks.some(t => t.daysUntilDue < 0)).length },
+                  { label: 'Due Today', color: 'rgb(251, 146, 60)', count: utilities.filter(u => u.tasks.some(t => t.daysUntilDue === 0)).length },
+                  { label: 'Due This Week (1-7d)', color: 'rgb(234, 179, 8)', count: utilities.filter(u => u.tasks.some(t => t.daysUntilDue > 0 && t.daysUntilDue <= 7)).length },
+                  { label: 'Due Next Week (8-14d)', color: 'rgb(59, 130, 246)', count: utilities.filter(u => u.tasks.some(t => t.daysUntilDue > 7 && t.daysUntilDue <= 14)).length }
+                ].map(item => 
+                  React.createElement('div', {
+                    key: item.label,
+                    style: {
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '0.75rem',
+                      background: 'rgba(15, 23, 42, 0.5)',
+                      borderRadius: '0.5rem',
+                      marginBottom: '0.75rem'
+                    }
+                  },
+                    React.createElement('span', {
+                      style: { fontSize: '0.875rem', color: 'rgb(203, 213, 225)' }
+                    }, item.label),
+                    React.createElement('span', {
+                      style: {
+                        fontSize: '1.25rem',
+                        fontWeight: '700',
+                        color: item.color,
+                        padding: '0.25rem 0.75rem',
+                        background: `${item.color}15`,
+                        borderRadius: '0.5rem'
+                      }
+                    }, item.count)
+                  )
+                )
+              )
             )
           ),
 
-          // Utility Grid Heatmap
+          // Utility Heatmap - Full Width
           React.createElement('div', {
             style: {
               background: 'rgba(30, 41, 59, 0.5)',
               border: '1px solid rgba(148, 163, 184, 0.1)',
               borderRadius: '0.75rem',
-              overflow: 'hidden'
+              overflow: 'hidden',
+              marginBottom: '2rem'
             }
           },
             React.createElement('div', {
@@ -1900,10 +1802,10 @@
               React.createElement('div', null,
                 React.createElement('h3', {
                   style: { margin: '0 0 0.25rem 0', fontSize: '1rem', fontWeight: '600' }
-                }, 'All Utilities Heatmap'),
+                }, '🗺️ Program Health Heatmap'),
                 React.createElement('p', {
                   style: { margin: 0, fontSize: '0.75rem', color: 'rgb(148, 163, 184)' }
-                }, 'Click any tile to view details')
+                }, 'All 60 utilities at a glance - Click any tile to view details')
               ),
               React.createElement('div', { style: { display: 'flex', gap: '1rem', fontSize: '0.75rem' } },
                 React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '0.5rem' } },
@@ -1945,8 +1847,7 @@
                     borderRadius: '0.25rem',
                     cursor: 'pointer',
                     transition: 'all 0.2s',
-                    border: '1px solid rgba(0, 0, 0, 0.2)',
-                    position: 'relative'
+                    border: '1px solid rgba(0, 0, 0, 0.2)'
                   },
                   onMouseEnter: (e) => {
                     e.currentTarget.style.transform = 'scale(1.2)';
@@ -1961,10 +1862,87 @@
                 })
               )
             )
+          ),
+
+          // Executive Insights
+          React.createElement('div', {
+            style: {
+              background: 'linear-gradient(135deg, rgba(147, 51, 234, 0.15) 0%, rgba(236, 72, 153, 0.15) 100%)',
+              border: '1px solid rgba(147, 51, 234, 0.3)',
+              borderRadius: '0.75rem',
+              padding: '1.5rem'
+            }
+          },
+            React.createElement('h3', {
+              style: { margin: '0 0 1rem 0', fontSize: '1.125rem', fontWeight: '600', color: 'rgb(192, 132, 252)' }
+            }, '💡 Key Insights & Recommendations'),
+            React.createElement('div', {
+              style: {
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, 1fr)',
+                gap: '1rem'
+              }
+            },
+              [
+                {
+                  title: 'Program Performance',
+                  insight: `${Math.round((utilities.filter(u => u.healthStatus === 'healthy').length / utilities.length) * 100)}% of utilities are on track. This exceeds our 75% target.`,
+                  action: 'Continue current operations strategy.',
+                  status: 'positive'
+                },
+                {
+                  title: 'Critical Attention Needed',
+                  insight: `${utilities.filter(u => u.healthStatus === 'critical').length} utilities require immediate intervention to unblock $${(utilities.filter(u => u.healthStatus === 'critical').length * 125).toLocaleString()}K.`,
+                  action: 'Escalate to senior stakeholders at utilities.',
+                  status: 'urgent'
+                },
+                {
+                  title: 'Team Capacity',
+                  insight: 'Workload is evenly distributed across team. No members are overloaded.',
+                  action: 'Current allocation is optimal.',
+                  status: 'positive'
+                },
+                {
+                  title: 'Compliance Risk',
+                  insight: `${utilities.filter(u => u.tasks.some(t => t.category === 'compliance' && t.status === 'overdue')).length} utilities have overdue compliance tasks.`,
+                  action: 'Schedule compliance review meetings this week.',
+                  status: 'warning'
+                }
+              ].map((item, idx) =>
+                React.createElement('div', {
+                  key: idx,
+                  style: {
+                    padding: '1rem',
+                    background: 'rgba(30, 41, 59, 0.5)',
+                    border: `1px solid ${item.status === 'positive' ? 'rgba(34, 197, 94, 0.3)' : item.status === 'urgent' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(251, 146, 60, 0.3)'}`,
+                    borderRadius: '0.5rem'
+                  }
+                },
+                  React.createElement('div', {
+                    style: {
+                      fontSize: '0.875rem',
+                      fontWeight: '600',
+                      color: item.status === 'positive' ? 'rgb(34, 197, 94)' : item.status === 'urgent' ? 'rgb(239, 68, 68)' : 'rgb(251, 146, 60)',
+                      marginBottom: '0.5rem'
+                    }
+                  }, item.title),
+                  React.createElement('div', {
+                    style: { fontSize: '0.875rem', color: 'rgb(203, 213, 225)', marginBottom: '0.75rem' }
+                  }, item.insight),
+                  React.createElement('div', {
+                    style: {
+                      fontSize: '0.75rem',
+                      color: 'rgb(148, 163, 184)',
+                      fontStyle: 'italic',
+                      paddingTop: '0.75rem',
+                      borderTop: '1px solid rgba(148, 163, 184, 0.1)'
+                    }
+                  }, `→ ${item.action}`)
+                )
+              )
+            )
           )
         ),
-
-        // Team View - Who's working on what
         view === 'team' && React.createElement('div', { style: { padding: '0 2rem 2rem' } },
           React.createElement('div', {
             style: {
