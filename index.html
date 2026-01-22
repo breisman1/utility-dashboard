@@ -227,7 +227,7 @@
     };
 
     const UtilityDashboard = () => {
-      const [utilities] = useState(generateMockData());
+      const [utilities, setUtilities] = useState(generateMockData());
       const [selectedUtility, setSelectedUtility] = useState(null);
       const [searchTerm, setSearchTerm] = useState('');
       const [filterStatus, setFilterStatus] = useState('all');
@@ -235,6 +235,18 @@
       const [sortBy, setSortBy] = useState('risk');
       const [view, setView] = useState('thisweek');
       const [emailDraft, setEmailDraft] = useState(null);
+      const [selectedUtilities, setSelectedUtilities] = useState(new Set());
+      const [showBulkActions, setShowBulkActions] = useState(false);
+      const [reassignModal, setReassignModal] = useState(null); // { utility, task }
+      
+      // Team members who can be assigned tasks
+      const teamMembers = [
+        { id: 1, name: 'Sarah Chen', role: 'Program Manager', avatar: '👩', color: 'rgb(59, 130, 246)' },
+        { id: 2, name: 'Marcus Johnson', role: 'Compliance Specialist', avatar: '👨', color: 'rgb(147, 51, 234)' },
+        { id: 3, name: 'Elena Rodriguez', role: 'Operations Lead', avatar: '👩', color: 'rgb(236, 72, 153)' },
+        { id: 4, name: 'David Kim', role: 'Technical Coordinator', avatar: '👨', color: 'rgb(34, 197, 94)' },
+        { id: 5, name: 'You', role: 'Senior PM', avatar: '⭐', color: 'rgb(251, 146, 60)' }
+      ];
 
       const filteredUtilities = useMemo(() => {
         let filtered = [...utilities];
@@ -336,6 +348,107 @@
         };
       };
 
+      // Toggle utility selection for bulk actions
+      const toggleUtilitySelection = (utilityId) => {
+        const newSelected = new Set(selectedUtilities);
+        if (newSelected.has(utilityId)) {
+          newSelected.delete(utilityId);
+        } else {
+          newSelected.add(utilityId);
+        }
+        setSelectedUtilities(newSelected);
+        setShowBulkActions(newSelected.size > 0);
+      };
+
+      // Select all filtered utilities
+      const selectAllFiltered = () => {
+        const newSelected = new Set(filteredUtilities.map(u => u.id));
+        setSelectedUtilities(newSelected);
+        setShowBulkActions(true);
+      };
+
+      // Clear all selections
+      const clearSelections = () => {
+        setSelectedUtilities(new Set());
+        setShowBulkActions(false);
+      };
+
+      // Send bulk reminders
+      const sendBulkReminders = () => {
+        const count = selectedUtilities.size;
+        alert(`Sending reminders to ${count} utilities...\n\nIn production, this would:\n• Generate ${count} customized emails\n• Queue them for delivery\n• Log the activity\n• Update reminder counts`);
+        clearSelections();
+      };
+
+      // Mark task as complete
+      const completeTask = (utilityId, taskId) => {
+        setUtilities(prevUtilities => 
+          prevUtilities.map(u => {
+            if (u.id === utilityId) {
+              return {
+                ...u,
+                tasks: u.tasks.map(t => 
+                  t.id === taskId ? { ...t, status: 'completed', completedDate: new Date().toISOString() } : t
+                )
+              };
+            }
+            return u;
+          })
+        );
+        alert('Task marked as complete! ✅');
+      };
+
+      // Reassign task to team member
+      const reassignTask = (utilityId, taskId, teamMember) => {
+        setUtilities(prevUtilities => 
+          prevUtilities.map(u => {
+            if (u.id === utilityId) {
+              return {
+                ...u,
+                tasks: u.tasks.map(t => 
+                  t.id === taskId ? { ...t, internalAssignee: teamMember } : t
+                )
+              };
+            }
+            return u;
+          })
+        );
+        setReassignModal(null);
+        alert(`Task reassigned to ${teamMember.name}! 👍`);
+      };
+
+      // Export to CSV
+      const exportToCSV = () => {
+        const headers = ['Utility Name', 'City', 'Health Status', 'Risk Score', 'Tasks', 'Overdue Tasks', 'Next Deadline'];
+        const rows = utilities.map(u => [
+          u.name,
+          u.city,
+          u.healthStatus,
+          u.riskScore,
+          u.tasks.length,
+          u.tasks.filter(t => t.status === 'overdue').length,
+          u.nextDeadline < 0 ? `${Math.abs(u.nextDeadline)}d overdue` : `${u.nextDeadline}d`
+        ]);
+        
+        const csvContent = [
+          headers.join(','),
+          ...rows.map(row => row.join(','))
+        ].join('\n');
+        
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `utility-dashboard-${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      };
+
+      // Export to PDF (simplified - in production would use jsPDF)
+      const exportToPDF = () => {
+        alert('PDF Export\n\nIn production, this would generate a comprehensive PDF report including:\n\n• Executive summary\n• Health status breakdown\n• Critical utilities list\n• Task completion statistics\n• Team workload distribution\n• Trend charts\n\nFor this demo, use the CSV export or print this page (Ctrl/Cmd + P)');
+      };
+
       const stats = useMemo(() => {
         const critical = utilities.filter(u => u.healthStatus === 'critical').length;
         const warning = utilities.filter(u => u.healthStatus === 'warning').length;
@@ -409,6 +522,48 @@
             ),
             React.createElement('div', { style: { display: 'flex', gap: '1rem', alignItems: 'center' } },
               React.createElement('button', {
+                onClick: exportToCSV,
+                style: {
+                  padding: '0.5rem 1rem',
+                  background: 'rgba(34, 197, 94, 0.1)',
+                  border: '1px solid rgba(34, 197, 94, 0.3)',
+                  borderRadius: '0.5rem',
+                  color: 'rgb(134, 239, 172)',
+                  cursor: 'pointer',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  transition: 'all 0.2s'
+                }
+              }, '📊 Export CSV'),
+              React.createElement('button', {
+                onClick: exportToPDF,
+                style: {
+                  padding: '0.5rem 1rem',
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  borderRadius: '0.5rem',
+                  color: 'rgb(252, 165, 165)',
+                  cursor: 'pointer',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  transition: 'all 0.2s'
+                }
+              }, '📄 Export PDF'),
+              React.createElement('button', {
+                onClick: () => setView('team'),
+                style: {
+                  padding: '0.5rem 1rem',
+                  background: view === 'team' ? 'rgba(147, 51, 234, 0.2)' : 'transparent',
+                  border: view === 'team' ? '1px solid rgb(147, 51, 234)' : '1px solid rgba(148, 163, 184, 0.2)',
+                  borderRadius: '0.5rem',
+                  color: view === 'team' ? 'rgb(192, 132, 252)' : 'rgb(203, 213, 225)',
+                  cursor: 'pointer',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  transition: 'all 0.2s'
+                }
+              }, '👥 Team'),
+              React.createElement('button', {
                 onClick: () => setView('thisweek'),
                 style: {
                   padding: '0.5rem 1rem',
@@ -474,6 +629,78 @@
           React.createElement(StatCard, { label: 'Healthy', value: stats.healthy, color: 'rgb(34, 197, 94)', icon: React.createElement(CheckCircle, { size: 20 }) }),
           React.createElement(StatCard, { label: 'Critical Blockers', value: stats.blockerTasks, color: 'rgb(239, 68, 68)', icon: React.createElement(AlertTriangle, { size: 20 }) }),
           React.createElement(StatCard, { label: 'Past Deadline', value: stats.overdueCount, color: 'rgb(251, 146, 60)', icon: React.createElement(Clock, { size: 20 }) })
+        ),
+
+        // Bulk Actions Toolbar
+        showBulkActions && React.createElement('div', {
+          style: {
+            margin: '0 2rem',
+            padding: '1rem 1.5rem',
+            background: 'rgba(59, 130, 246, 0.1)',
+            border: '1px solid rgba(59, 130, 246, 0.3)',
+            borderRadius: '0.75rem',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }
+        },
+          React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '1rem' } },
+            React.createElement('div', {
+              style: { fontSize: '0.875rem', fontWeight: '600', color: 'rgb(147, 197, 253)' }
+            }, `${selectedUtilities.size} selected`),
+            React.createElement('button', {
+              onClick: clearSelections,
+              style: {
+                padding: '0.5rem 1rem',
+                background: 'transparent',
+                border: '1px solid rgba(148, 163, 184, 0.3)',
+                borderRadius: '0.375rem',
+                color: 'rgb(203, 213, 225)',
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: '500'
+              }
+            }, 'Clear All')
+          ),
+          React.createElement('div', { style: { display: 'flex', gap: '0.75rem' } },
+            React.createElement('button', {
+              onClick: sendBulkReminders,
+              style: {
+                padding: '0.5rem 1.5rem',
+                background: 'rgba(59, 130, 246, 0.2)',
+                border: '1px solid rgb(59, 130, 246)',
+                borderRadius: '0.375rem',
+                color: 'rgb(147, 197, 253)',
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }
+            },
+              React.createElement(Send, { size: 14 }),
+              'Send Bulk Reminders'
+            ),
+            React.createElement('button', {
+              onClick: () => {
+                const utilsList = Array.from(selectedUtilities).map(id => 
+                  utilities.find(u => u.id === id)?.name
+                ).join(', ');
+                alert(`Export Selected (${selectedUtilities.size})\n\n${utilsList}\n\nIn production, this would export only the selected utilities to CSV/PDF.`);
+              },
+              style: {
+                padding: '0.5rem 1.5rem',
+                background: 'transparent',
+                border: '1px solid rgba(34, 197, 94, 0.3)',
+                borderRadius: '0.375rem',
+                color: 'rgb(134, 239, 172)',
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: '500'
+              }
+            }, '📊 Export Selected')
+          )
         ),
 
         // This Week View - simplified for HTML
@@ -680,7 +907,7 @@
             React.createElement('div', {
               style: {
                 display: 'grid',
-                gridTemplateColumns: '2fr 1fr 1fr 1.5fr 1fr 0.5fr',
+                gridTemplateColumns: '0.5fr 2fr 1fr 1fr 1.5fr 1fr 0.5fr',
                 padding: '1rem 1.5rem',
                 background: 'rgba(15, 23, 42, 0.5)',
                 borderBottom: '1px solid rgba(148, 163, 184, 0.1)',
@@ -691,6 +918,14 @@
                 color: 'rgb(148, 163, 184)'
               }
             },
+              React.createElement('div', { style: { display: 'flex', alignItems: 'center' } },
+                React.createElement('input', {
+                  type: 'checkbox',
+                  checked: selectedUtilities.size === filteredUtilities.length && filteredUtilities.length > 0,
+                  onChange: (e) => e.target.checked ? selectAllFiltered() : clearSelections(),
+                  style: { cursor: 'pointer', width: '16px', height: '16px' }
+                })
+              ),
               React.createElement('div', null, 'Utility'),
               React.createElement('div', null, 'Health'),
               React.createElement('div', null, 'Last Activity'),
@@ -709,22 +944,43 @@
 
               return React.createElement('div', {
                 key: utility.id,
-                onClick: () => setSelectedUtility(utility),
                 style: {
                   display: 'grid',
-                  gridTemplateColumns: '2fr 1fr 1fr 1.5fr 1fr 0.5fr',
+                  gridTemplateColumns: '0.5fr 2fr 1fr 1fr 1.5fr 1fr 0.5fr',
                   padding: '1.25rem 1.5rem',
                   borderBottom: idx < filteredUtilities.length - 1 ? '1px solid rgba(148, 163, 184, 0.05)' : 'none',
-                  cursor: 'pointer',
                   transition: 'all 0.2s',
                   alignItems: 'center',
-                  background: 'transparent'
+                  background: selectedUtilities.has(utility.id) ? 'rgba(59, 130, 246, 0.1)' : 'transparent'
                 },
-                onMouseEnter: (e) => e.currentTarget.style.background = 'rgba(59, 130, 246, 0.05)',
-                onMouseLeave: (e) => e.currentTarget.style.background = 'transparent'
+                onMouseEnter: (e) => {
+                  if (!selectedUtilities.has(utility.id)) {
+                    e.currentTarget.style.background = 'rgba(59, 130, 246, 0.05)';
+                  }
+                },
+                onMouseLeave: (e) => {
+                  if (!selectedUtilities.has(utility.id)) {
+                    e.currentTarget.style.background = 'transparent';
+                  }
+                }
               },
+                // Checkbox Column
+                React.createElement('div', {
+                  onClick: (e) => e.stopPropagation(),
+                  style: { display: 'flex', alignItems: 'center' }
+                },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: selectedUtilities.has(utility.id),
+                    onChange: () => toggleUtilitySelection(utility.id),
+                    style: { cursor: 'pointer', width: '16px', height: '16px' }
+                  })
+                ),
                 // Utility Name Column
-                React.createElement('div', null,
+                React.createElement('div', {
+                  onClick: () => setSelectedUtility(utility),
+                  style: { cursor: 'pointer' }
+                },
                   React.createElement('div', { style: { fontWeight: '600', marginBottom: '0.25rem' } }, utility.name),
                   React.createElement('div', { style: { fontSize: '0.75rem', color: 'rgb(148, 163, 184)' } },
                     `${utility.city} • ${utility.customerCount.toLocaleString()} customers`,
@@ -1469,6 +1725,196 @@
                 })
               )
             )
+          )
+        ),
+
+        // Team View - Who's working on what
+        view === 'team' && React.createElement('div', { style: { padding: '0 2rem 2rem' } },
+          React.createElement('div', {
+            style: {
+              marginBottom: '2rem',
+              padding: '1.5rem',
+              background: 'rgba(147, 51, 234, 0.1)',
+              border: '1px solid rgba(147, 51, 234, 0.3)',
+              borderRadius: '0.75rem'
+            }
+          },
+            React.createElement('h2', {
+              style: { margin: '0 0 0.5rem 0', fontSize: '1.5rem', fontWeight: '700', color: 'rgb(192, 132, 252)' }
+            }, '👥 Team Workload'),
+            React.createElement('p', {
+              style: { margin: 0, fontSize: '0.875rem', color: 'rgb(203, 213, 225)' }
+            }, 'See who is assigned to which tasks and their current workload')
+          ),
+
+          React.createElement('div', {
+            style: {
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+              gap: '1.5rem'
+            }
+          },
+            teamMembers.map(member => {
+              // Randomly assign some tasks to team members for demo
+              const memberTasks = utilities.flatMap(u => 
+                u.tasks
+                  .filter(t => {
+                    // Assign tasks based on member id for consistent demo
+                    const hash = (u.id + t.id).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                    return hash % teamMembers.length === (member.id - 1);
+                  })
+                  .map(t => ({ ...t, utility: u }))
+              ).slice(0, 8); // Limit to 8 tasks per person
+
+              const overdueCount = memberTasks.filter(t => t.status === 'overdue').length;
+              const urgentCount = memberTasks.filter(t => t.status === 'urgent').length;
+
+              return React.createElement('div', {
+                key: member.id,
+                style: {
+                  background: 'rgba(30, 41, 59, 0.5)',
+                  border: `1px solid ${member.color}30`,
+                  borderRadius: '0.75rem',
+                  overflow: 'hidden'
+                }
+              },
+                // Member Header
+                React.createElement('div', {
+                  style: {
+                    padding: '1.25rem',
+                    background: `${member.color}15`,
+                    borderBottom: `1px solid ${member.color}30`
+                  }
+                },
+                  React.createElement('div', {
+                    style: { display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }
+                  },
+                    React.createElement('div', {
+                      style: {
+                        fontSize: '2rem',
+                        width: '48px',
+                        height: '48px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        background: `${member.color}20`,
+                        borderRadius: '50%',
+                        border: `2px solid ${member.color}`
+                      }
+                    }, member.avatar),
+                    React.createElement('div', null,
+                      React.createElement('div', {
+                        style: { fontSize: '1.125rem', fontWeight: '600', color: member.color }
+                      }, member.name),
+                      React.createElement('div', {
+                        style: { fontSize: '0.75rem', color: 'rgb(148, 163, 184)' }
+                      }, member.role)
+                    )
+                  ),
+                  React.createElement('div', {
+                    style: {
+                      display: 'flex',
+                      gap: '1rem',
+                      fontSize: '0.875rem'
+                    }
+                  },
+                    React.createElement('div', null,
+                      React.createElement('span', {
+                        style: { color: 'rgb(148, 163, 184)' }
+                      }, 'Tasks: '),
+                      React.createElement('span', {
+                        style: { fontWeight: '600', color: member.color }
+                      }, memberTasks.length)
+                    ),
+                    overdueCount > 0 && React.createElement('div', null,
+                      React.createElement('span', {
+                        style: { color: 'rgb(239, 68, 68)', fontWeight: '600' }
+                      }, `${overdueCount} overdue`)
+                    ),
+                    urgentCount > 0 && React.createElement('div', null,
+                      React.createElement('span', {
+                        style: { color: 'rgb(251, 146, 60)', fontWeight: '600' }
+                      }, `${urgentCount} urgent`)
+                    )
+                  )
+                ),
+
+                // Task List
+                React.createElement('div', {
+                  style: { padding: '1rem', maxHeight: '400px', overflowY: 'auto' }
+                },
+                  memberTasks.length === 0 ? 
+                    React.createElement('div', {
+                      style: {
+                        padding: '2rem',
+                        textAlign: 'center',
+                        color: 'rgb(148, 163, 184)',
+                        fontSize: '0.875rem'
+                      }
+                    }, 'No tasks assigned') :
+                    memberTasks.map(task => 
+                      React.createElement('div', {
+                        key: `${task.utility.id}-${task.id}`,
+                        style: {
+                          padding: '0.75rem',
+                          background: 'rgba(15, 23, 42, 0.5)',
+                          border: task.status === 'overdue' ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(148, 163, 184, 0.1)',
+                          borderRadius: '0.5rem',
+                          marginBottom: '0.75rem',
+                          cursor: 'pointer'
+                        },
+                        onClick: () => setSelectedUtility(task.utility)
+                      },
+                        React.createElement('div', {
+                          style: {
+                            fontSize: '0.625rem',
+                            color: 'rgb(148, 163, 184)',
+                            marginBottom: '0.25rem',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em'
+                          }
+                        }, task.utility.name),
+                        React.createElement('div', {
+                          style: {
+                            fontWeight: '600',
+                            marginBottom: '0.5rem',
+                            fontSize: '0.875rem',
+                            color: task.status === 'overdue' ? 'rgb(239, 68, 68)' : 'rgb(248, 250, 252)'
+                          }
+                        }, task.name),
+                        React.createElement('div', {
+                          style: {
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                          }
+                        },
+                          React.createElement('div', {
+                            style: {
+                              display: 'inline-block',
+                              padding: '0.25rem 0.5rem',
+                              background: `${getCategoryColor(task.category)}15`,
+                              color: getCategoryColor(task.category),
+                              borderRadius: '0.25rem',
+                              fontSize: '0.625rem',
+                              fontWeight: '700',
+                              textTransform: 'uppercase'
+                            }
+                          }, task.category.replace('-', ' ')),
+                          React.createElement('div', {
+                            style: {
+                              fontSize: '0.75rem',
+                              fontWeight: '600',
+                              color: task.daysUntilDue < 0 ? 'rgb(239, 68, 68)' : 
+                                     task.daysUntilDue < 3 ? 'rgb(251, 146, 60)' : 'rgb(203, 213, 225)'
+                            }
+                          }, task.daysUntilDue < 0 ? `${Math.abs(task.daysUntilDue)}d overdue` : `Due in ${task.daysUntilDue}d`)
+                        )
+                      )
+                    )
+                )
+              );
+            })
           )
         ),
 
