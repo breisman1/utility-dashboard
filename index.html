@@ -1019,7 +1019,7 @@
             React.createElement('div', {
               style: {
                 display: 'grid',
-                gridTemplateColumns: '0.5fr 2fr 1fr 1fr 1.5fr 1fr 0.5fr',
+                gridTemplateColumns: '0.5fr 2fr 1fr 1fr 1.5fr 1fr 1fr 0.5fr',
                 padding: '1rem 1.5rem',
                 background: 'rgba(15, 23, 42, 0.5)',
                 borderBottom: '1px solid rgba(148, 163, 184, 0.1)',
@@ -1042,6 +1042,7 @@
               React.createElement('div', null, 'Health'),
               React.createElement('div', null, 'Last Activity'),
               React.createElement('div', null, 'Highest Priority Task'),
+              React.createElement('div', null, 'Assignee'),
               React.createElement('div', null, 'Deadline'),
               React.createElement('div', null)
             ),
@@ -1054,11 +1055,16 @@
                 return a.daysUntilDue - b.daysUntilDue;
               })[0];
 
+              // Assign team member based on utility id hash (consistent across renders)
+              const utilityHash = utility.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+              const shouldHaveAssignee = utilityHash % 4 !== 0; // 75% have assignees
+              const assignedMember = shouldHaveAssignee ? teamMembers[utilityHash % teamMembers.length] : null;
+
               return React.createElement('div', {
                 key: utility.id,
                 style: {
                   display: 'grid',
-                  gridTemplateColumns: '0.5fr 2fr 1fr 1fr 1.5fr 1fr 0.5fr',
+                  gridTemplateColumns: '0.5fr 2fr 1fr 1fr 1.5fr 1fr 1fr 0.5fr',
                   padding: '1.25rem 1.5rem',
                   borderBottom: idx < filteredUtilities.length - 1 ? '1px solid rgba(148, 163, 184, 0.05)' : 'none',
                   transition: 'all 0.2s',
@@ -1163,6 +1169,72 @@
                     style: { fontSize: '0.875rem', color: 'rgb(203, 213, 225)' }
                   }, highestPriorityTask.name)
                 ),
+
+                // Assignee Column
+                assignedMember ? React.createElement('div', {
+                  style: { 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '0.5rem',
+                    cursor: 'pointer'
+                  },
+                  onClick: (e) => {
+                    e.stopPropagation();
+                    alert(`Reassign Utility\n\nIn production, this would:\n• Show team member selector\n• Allow reassignment to different person\n• Update workload distribution\n\nCurrently assigned to: ${assignedMember.name}`);
+                  }
+                },
+                  React.createElement('div', {
+                    style: {
+                      fontSize: '1.25rem',
+                      width: '28px',
+                      height: '28px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      background: `${assignedMember.color}20`,
+                      borderRadius: '50%',
+                      border: `2px solid ${assignedMember.color}`
+                    }
+                  }, assignedMember.avatar),
+                  React.createElement('div', null,
+                    React.createElement('div', {
+                      style: { 
+                        fontSize: '0.875rem', 
+                        fontWeight: '500',
+                        color: assignedMember.color
+                      }
+                    }, assignedMember.name),
+                    React.createElement('div', {
+                      style: { 
+                        fontSize: '0.625rem', 
+                        color: 'rgb(148, 163, 184)'
+                      }
+                    }, assignedMember.role)
+                  )
+                ) : React.createElement('div', {
+                  style: {
+                    cursor: 'pointer',
+                    padding: '0.5rem',
+                    borderRadius: '0.375rem',
+                    border: '1px dashed rgba(148, 163, 184, 0.3)',
+                    fontSize: '0.75rem',
+                    color: 'rgb(148, 163, 184)',
+                    textAlign: 'center',
+                    transition: 'all 0.2s'
+                  },
+                  onClick: (e) => {
+                    e.stopPropagation();
+                    alert('Assign Utility\n\nIn production, this would:\n• Show team member selector\n• Assign to selected person\n• Update their workload\n• Send notification');
+                  },
+                  onMouseEnter: (e) => {
+                    e.currentTarget.style.background = 'rgba(148, 163, 184, 0.1)';
+                    e.currentTarget.style.borderColor = 'rgba(148, 163, 184, 0.5)';
+                  },
+                  onMouseLeave: (e) => {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.borderColor = 'rgba(148, 163, 184, 0.3)';
+                  }
+                }, 'Unassigned'),
 
                 // Deadline Column
                 React.createElement('div', {
