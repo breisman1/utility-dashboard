@@ -191,16 +191,23 @@
         });
 
         const blockerOverdue = tasks.some(t => t.category === 'blocker' && t.daysUntilDue < 0);
-        const hasUrgent = tasks.some(t => t.status === 'urgent');
+        const criticalOverdue = tasks.filter(t => t.status === 'overdue' && (t.category === 'blocker' || t.category === 'compliance')).length;
         const hasOverdue = tasks.some(t => t.status === 'overdue');
-        const noActivityRecent = Math.min(...tasks.map(t => t.lastContactDays)) > 14;
+        const hasUrgent = tasks.some(t => t.status === 'urgent');
+        const noActivityRecent = Math.min(...tasks.map(t => t.lastContactDays)) > 21;
         
         let healthStatus = 'healthy';
-        if (blockerOverdue || (hasOverdue && tasks.filter(t => t.status === 'overdue').length > 2)) {
+        // Only mark as critical if there are serious blockers
+        if (blockerOverdue || criticalOverdue >= 2) {
           healthStatus = 'critical';
-        } else if (hasOverdue || hasUrgent || noActivityRecent) {
+        } 
+        // Warning if there are overdue tasks or multiple urgent items
+        else if ((hasOverdue && tasks.filter(t => t.status === 'overdue').length >= 2) || 
+                 (hasUrgent && tasks.filter(t => t.status === 'urgent').length >= 3) || 
+                 noActivityRecent) {
           healthStatus = 'warning';
         }
+        // Otherwise healthy (even with 1 overdue or 1-2 urgent - that's normal operations)
 
         const riskScore = tasks.reduce((score, task) => {
           let taskScore = 0;
