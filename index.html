@@ -1518,7 +1518,7 @@
               style: { margin: '0 0 1.5rem 0', fontSize: '1.75rem', fontWeight: '700' }
             }, '🏥 Program Health Overview'),
 
-            // Heatmap
+            // Grouped Status View (3 columns)
             React.createElement('div', {
               style: {
                 background: 'rgba(30, 41, 59, 0.5)',
@@ -1532,149 +1532,218 @@
                 style: {
                   padding: '1.25rem 1.5rem',
                   background: 'rgba(15, 23, 42, 0.5)',
-                  borderBottom: '1px solid rgba(148, 163, 184, 0.1)',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
+                  borderBottom: '1px solid rgba(148, 163, 184, 0.1)'
                 }
               },
-                React.createElement('div', null,
-                  React.createElement('h3', {
-                    style: { margin: '0 0 0.25rem 0', fontSize: '1rem', fontWeight: '600' }
-                  }, '🗺️ All Utilities Heatmap'),
-                  React.createElement('p', {
-                    style: { margin: 0, fontSize: '0.75rem', color: 'rgb(148, 163, 184)' }
-                  }, 'Click any tile for details')
-                ),
-                React.createElement('div', { style: { display: 'flex', gap: '1rem', fontSize: '0.75rem' } },
-                  React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '0.5rem' } },
-                    React.createElement('div', {
-                      style: { width: '12px', height: '12px', background: 'rgb(239, 68, 68)', borderRadius: '2px' }
-                    }),
-                    React.createElement('span', { style: { color: 'rgb(148, 163, 184)' } }, 'Critical')
-                  ),
-                  React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '0.5rem' } },
-                    React.createElement('div', {
-                      style: { width: '12px', height: '12px', background: 'rgb(251, 146, 60)', borderRadius: '2px' }
-                    }),
-                    React.createElement('span', { style: { color: 'rgb(148, 163, 184)' } }, 'At Risk')
-                  ),
-                  React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '0.5rem' } },
-                    React.createElement('div', {
-                      style: { width: '12px', height: '12px', background: 'rgb(34, 197, 94)', borderRadius: '2px' }
-                    }),
-                    React.createElement('span', { style: { color: 'rgb(148, 163, 184)' } }, 'Healthy')
-                  )
-                )
+                React.createElement('h3', {
+                  style: { margin: '0 0 0.25rem 0', fontSize: '1rem', fontWeight: '600' }
+                }, '📋 All Utilities by Status'),
+                React.createElement('p', {
+                  style: { margin: 0, fontSize: '0.75rem', color: 'rgb(148, 163, 184)' }
+                }, 'Click any utility for details')
               ),
               React.createElement('div', {
                 style: {
                   padding: '1.5rem',
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(10, 1fr)',
-                  gap: '0.5rem'
+                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gap: '1.5rem'
                 }
               },
-                utilities.map(utility => 
+                // Critical Column
+                React.createElement('div', {
+                  style: {
+                    background: 'rgba(239, 68, 68, 0.05)',
+                    border: '2px solid rgba(239, 68, 68, 0.3)',
+                    borderRadius: '0.75rem',
+                    padding: '1rem',
+                    minHeight: '300px'
+                  }
+                },
                   React.createElement('div', {
-                    key: utility.id,
-                    onClick: () => setSelectedUtility(utility),
-                    title: `${utility.name} - ${utility.healthStatus}`,
                     style: {
-                      aspectRatio: '1',
-                      background: getStatusColor(utility.healthStatus),
-                      borderRadius: '0.25rem',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      border: '1px solid rgba(0, 0, 0, 0.2)'
-                    },
-                    onMouseEnter: (e) => {
-                      e.currentTarget.style.transform = 'scale(1.2)';
-                      e.currentTarget.style.zIndex = '10';
-                      e.currentTarget.style.boxShadow = `0 0 12px ${getStatusColor(utility.healthStatus)}`;
-                    },
-                    onMouseLeave: (e) => {
-                      e.currentTarget.style.transform = 'scale(1)';
-                      e.currentTarget.style.zIndex = '1';
-                      e.currentTarget.style.boxShadow = 'none';
-                    }
-                  })
-                )
-              )
-            ),
-
-            // Critical & At-Risk
-            React.createElement('div', {
-              style: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }
-            },
-              React.createElement('div', {
-                style: {
-                  background: 'rgba(30, 41, 59, 0.5)',
-                  border: '1px solid rgba(239, 68, 68, 0.3)',
-                  borderRadius: '0.75rem',
-                  padding: '1.5rem'
-                }
-              },
-                React.createElement('h3', {
-                  style: { margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: '600', color: 'rgb(239, 68, 68)' }
-                }, `🚨 Critical (${utilities.filter(u => u.healthStatus === 'critical').length})`),
-                utilities.filter(u => u.healthStatus === 'critical').slice(0, 5).map(u =>
-                  React.createElement('div', {
-                    key: u.id,
-                    onClick: () => setSelectedUtility(u),
-                    style: {
-                      padding: '0.75rem',
-                      background: 'rgba(239, 68, 68, 0.1)',
-                      border: '1px solid rgba(239, 68, 68, 0.2)',
-                      borderRadius: '0.5rem',
-                      marginBottom: '0.5rem',
-                      cursor: 'pointer'
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      marginBottom: '1rem',
+                      paddingBottom: '0.75rem',
+                      borderBottom: '1px solid rgba(239, 68, 68, 0.3)'
                     }
                   },
                     React.createElement('div', {
-                      style: { fontWeight: '600', marginBottom: '0.25rem' }
-                    }, u.name),
+                      style: {
+                        width: '12px',
+                        height: '12px',
+                        background: 'rgb(239, 68, 68)',
+                        borderRadius: '50%'
+                      }
+                    }),
+                    React.createElement('h4', {
+                      style: { margin: 0, fontSize: '0.875rem', fontWeight: '600', color: 'rgb(239, 68, 68)' }
+                    }, `CRITICAL (${utilities.filter(u => u.healthStatus === 'critical').length})`)
+                  ),
+                  utilities.filter(u => u.healthStatus === 'critical').map(u =>
                     React.createElement('div', {
-                      style: { fontSize: '0.75rem', color: 'rgb(148, 163, 184)' }
-                    }, `Risk: ${u.riskScore} • ${u.city}`)
+                      key: u.id,
+                      onClick: () => setSelectedUtility(u),
+                      style: {
+                        padding: '0.75rem',
+                        background: 'rgba(239, 68, 68, 0.1)',
+                        border: '1px solid rgba(239, 68, 68, 0.2)',
+                        borderRadius: '0.5rem',
+                        marginBottom: '0.5rem',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      },
+                      onMouseEnter: (e) => {
+                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                        e.currentTarget.style.transform = 'translateX(4px)';
+                      },
+                      onMouseLeave: (e) => {
+                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                        e.currentTarget.style.transform = 'translateX(0)';
+                      }
+                    },
+                      React.createElement('div', {
+                        style: { fontWeight: '600', fontSize: '0.875rem', marginBottom: '0.25rem', color: 'rgb(248, 250, 252)' }
+                      }, u.name),
+                      React.createElement('div', {
+                        style: { fontSize: '0.75rem', color: 'rgb(148, 163, 184)' }
+                      }, `${u.city} • Risk: ${u.riskScore}`)
+                    )
                   )
-                )
-              ),
+                ),
 
-              React.createElement('div', {
-                style: {
-                  background: 'rgba(30, 41, 59, 0.5)',
-                  border: '1px solid rgba(251, 146, 60, 0.3)',
-                  borderRadius: '0.75rem',
-                  padding: '1.5rem'
-                }
-              },
-                React.createElement('h3', {
-                  style: { margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: '600', color: 'rgb(251, 146, 60)' }
-                }, `⚠️ At Risk (${utilities.filter(u => u.healthStatus === 'warning').length})`),
-                utilities.filter(u => u.healthStatus === 'warning').slice(0, 5).map(u =>
+                // At Risk Column
+                React.createElement('div', {
+                  style: {
+                    background: 'rgba(251, 146, 60, 0.05)',
+                    border: '2px solid rgba(251, 146, 60, 0.3)',
+                    borderRadius: '0.75rem',
+                    padding: '1rem',
+                    minHeight: '300px'
+                  }
+                },
                   React.createElement('div', {
-                    key: u.id,
-                    onClick: () => setSelectedUtility(u),
                     style: {
-                      padding: '0.75rem',
-                      background: 'rgba(251, 146, 60, 0.1)',
-                      border: '1px solid rgba(251, 146, 60, 0.2)',
-                      borderRadius: '0.5rem',
-                      marginBottom: '0.5rem',
-                      cursor: 'pointer'
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      marginBottom: '1rem',
+                      paddingBottom: '0.75rem',
+                      borderBottom: '1px solid rgba(251, 146, 60, 0.3)'
                     }
                   },
                     React.createElement('div', {
-                      style: { fontWeight: '600', marginBottom: '0.25rem' }
-                    }, u.name),
+                      style: {
+                        width: '12px',
+                        height: '12px',
+                        background: 'rgb(251, 146, 60)',
+                        borderRadius: '50%'
+                      }
+                    }),
+                    React.createElement('h4', {
+                      style: { margin: 0, fontSize: '0.875rem', fontWeight: '600', color: 'rgb(251, 146, 60)' }
+                    }, `AT RISK (${utilities.filter(u => u.healthStatus === 'warning').length})`)
+                  ),
+                  utilities.filter(u => u.healthStatus === 'warning').map(u =>
                     React.createElement('div', {
-                      style: { fontSize: '0.75rem', color: 'rgb(148, 163, 184)' }
-                    }, `Risk: ${u.riskScore} • ${u.city}`)
+                      key: u.id,
+                      onClick: () => setSelectedUtility(u),
+                      style: {
+                        padding: '0.75rem',
+                        background: 'rgba(251, 146, 60, 0.1)',
+                        border: '1px solid rgba(251, 146, 60, 0.2)',
+                        borderRadius: '0.5rem',
+                        marginBottom: '0.5rem',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      },
+                      onMouseEnter: (e) => {
+                        e.currentTarget.style.background = 'rgba(251, 146, 60, 0.2)';
+                        e.currentTarget.style.transform = 'translateX(4px)';
+                      },
+                      onMouseLeave: (e) => {
+                        e.currentTarget.style.background = 'rgba(251, 146, 60, 0.1)';
+                        e.currentTarget.style.transform = 'translateX(0)';
+                      }
+                    },
+                      React.createElement('div', {
+                        style: { fontWeight: '600', fontSize: '0.875rem', marginBottom: '0.25rem', color: 'rgb(248, 250, 252)' }
+                      }, u.name),
+                      React.createElement('div', {
+                        style: { fontSize: '0.75rem', color: 'rgb(148, 163, 184)' }
+                      }, `${u.city} • Risk: ${u.riskScore}`)
+                    )
+                  )
+                ),
+
+                // Healthy Column
+                React.createElement('div', {
+                  style: {
+                    background: 'rgba(34, 197, 94, 0.05)',
+                    border: '2px solid rgba(34, 197, 94, 0.3)',
+                    borderRadius: '0.75rem',
+                    padding: '1rem',
+                    minHeight: '300px'
+                  }
+                },
+                  React.createElement('div', {
+                    style: {
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      marginBottom: '1rem',
+                      paddingBottom: '0.75rem',
+                      borderBottom: '1px solid rgba(34, 197, 94, 0.3)'
+                    }
+                  },
+                    React.createElement('div', {
+                      style: {
+                        width: '12px',
+                        height: '12px',
+                        background: 'rgb(34, 197, 94)',
+                        borderRadius: '50%'
+                      }
+                    }),
+                    React.createElement('h4', {
+                      style: { margin: 0, fontSize: '0.875rem', fontWeight: '600', color: 'rgb(34, 197, 94)' }
+                    }, `HEALTHY (${utilities.filter(u => u.healthStatus === 'healthy').length})`)
+                  ),
+                  utilities.filter(u => u.healthStatus === 'healthy').map(u =>
+                    React.createElement('div', {
+                      key: u.id,
+                      onClick: () => setSelectedUtility(u),
+                      style: {
+                        padding: '0.75rem',
+                        background: 'rgba(34, 197, 94, 0.1)',
+                        border: '1px solid rgba(34, 197, 94, 0.2)',
+                        borderRadius: '0.5rem',
+                        marginBottom: '0.5rem',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      },
+                      onMouseEnter: (e) => {
+                        e.currentTarget.style.background = 'rgba(34, 197, 94, 0.2)';
+                        e.currentTarget.style.transform = 'translateX(4px)';
+                      },
+                      onMouseLeave: (e) => {
+                        e.currentTarget.style.background = 'rgba(34, 197, 94, 0.1)';
+                        e.currentTarget.style.transform = 'translateX(0)';
+                      }
+                    },
+                      React.createElement('div', {
+                        style: { fontWeight: '600', fontSize: '0.875rem', marginBottom: '0.25rem', color: 'rgb(248, 250, 252)' }
+                      }, u.name),
+                      React.createElement('div', {
+                        style: { fontSize: '0.75rem', color: 'rgb(148, 163, 184)' }
+                      }, `${u.city} • Risk: ${u.riskScore}`)
+                    )
                   )
                 )
               )
             )
+
           ),
 
           // Team Performance View
