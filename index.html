@@ -1408,52 +1408,44 @@
                 style: {
                   padding: '1.5rem',
                   background: 'rgba(30, 41, 59, 0.5)',
-                  border: '1px solid rgba(59, 130, 246, 0.3)',
+                  border: '1px solid rgba(34, 197, 94, 0.3)',
                   borderRadius: '0.75rem'
                 }
               },
                 React.createElement('div', {
                   style: { fontSize: '0.75rem', color: 'rgb(148, 163, 184)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }
-                }, 'On-Track Rate'),
+                }, 'Healthy Utilities'),
                 React.createElement('div', {
-                  style: { fontSize: '2.5rem', fontWeight: '700', color: 'rgb(59, 130, 246)', marginBottom: '0.5rem' }
-                }, `${Math.round(((utilities.filter(u => u.healthStatus === 'healthy').length + utilities.filter(u => u.healthStatus === 'warning').length) / utilities.length) * 100)}%`),
+                  style: { fontSize: '2.5rem', fontWeight: '700', color: 'rgb(34, 197, 94)', marginBottom: '0.5rem' }
+                }, utilities.filter(u => u.healthStatus === 'healthy').length),
                 React.createElement('div', {
-                  style: { fontSize: '0.875rem', color: 'rgb(203, 213, 225)', display: 'flex', alignItems: 'center', gap: '0.5rem' }
-                },
-                  React.createElement('span', { 
-                    style: { 
-                      color: ((utilities.filter(u => u.healthStatus === 'healthy').length + utilities.filter(u => u.healthStatus === 'warning').length) / utilities.length) >= 0.75 
-                        ? 'rgb(34, 197, 94)' 
-                        : 'rgb(251, 146, 60)' 
-                    } 
-                  }, ((utilities.filter(u => u.healthStatus === 'healthy').length + utilities.filter(u => u.healthStatus === 'warning').length) / utilities.length) >= 0.75 
-                    ? '↗ Exceeds target' 
-                    : '⚠️ Below target'),
-                  'of 75%'
-                ),
+                  style: { fontSize: '0.875rem', color: 'rgb(203, 213, 225)' }
+                }, 'No critical issues'),
                 React.createElement('div', {
                   style: { fontSize: '0.75rem', color: 'rgb(148, 163, 184)', marginTop: '0.5rem' }
-                }, `${utilities.filter(u => u.healthStatus === 'critical').length} critical need immediate action`)
+                }, `${Math.round((utilities.filter(u => u.healthStatus === 'healthy').length / utilities.length) * 100)}% of total`)
               ),
 
               React.createElement('div', {
                 style: {
                   padding: '1.5rem',
                   background: 'rgba(30, 41, 59, 0.5)',
-                  border: '1px solid rgba(251, 146, 60, 0.3)',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
                   borderRadius: '0.75rem'
                 }
               },
                 React.createElement('div', {
                   style: { fontSize: '0.75rem', color: 'rgb(148, 163, 184)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }
-                }, 'At-Risk Amount'),
+                }, 'Critical Utilities'),
                 React.createElement('div', {
-                  style: { fontSize: '2.5rem', fontWeight: '700', color: 'rgb(251, 146, 60)', marginBottom: '0.5rem' }
-                }, `$${(utilities.filter(u => u.tasks.some(t => t.category === 'blocker')).length * 125).toLocaleString()}K`),
+                  style: { fontSize: '2.5rem', fontWeight: '700', color: 'rgb(239, 68, 68)', marginBottom: '0.5rem' }
+                }, utilities.filter(u => u.healthStatus === 'critical').length),
                 React.createElement('div', {
                   style: { fontSize: '0.875rem', color: 'rgb(203, 213, 225)' }
-                }, `${utilities.filter(u => u.tasks.some(t => t.category === 'blocker')).length} utilities blocked`)
+                }, 'Need immediate action'),
+                React.createElement('div', {
+                  style: { fontSize: '0.75rem', color: 'rgb(148, 163, 184)', marginTop: '0.5rem' }
+                }, `~$${(utilities.filter(u => u.healthStatus === 'critical').length * 125).toLocaleString()}K at risk`)
               )
             ),
 
@@ -1474,9 +1466,9 @@
               },
                 [
                   {
-                    title: 'Program Performance',
-                    insight: `${Math.round(((utilities.filter(u => u.healthStatus === 'healthy').length + utilities.filter(u => u.healthStatus === 'warning').length) / utilities.length) * 100)}% on-track rate. ${utilities.filter(u => u.healthStatus === 'critical').length} critical utilities need intervention.`,
-                    status: ((utilities.filter(u => u.healthStatus === 'healthy').length + utilities.filter(u => u.healthStatus === 'warning').length) / utilities.length) >= 0.75 ? 'positive' : 'warning'
+                    title: 'Program Health',
+                    insight: `${utilities.filter(u => u.healthStatus === 'healthy').length} healthy, ${utilities.filter(u => u.healthStatus === 'warning').length} at risk, ${utilities.filter(u => u.healthStatus === 'critical').length} critical`,
+                    status: 'positive'
                   },
                   {
                     title: 'Critical Attention',
