@@ -190,24 +190,23 @@
           };
         });
 
-        const blockerOverdue = tasks.some(t => t.category === 'blocker' && t.daysUntilDue < 0);
-        const criticalOverdue = tasks.filter(t => t.status === 'overdue' && (t.category === 'blocker' || t.category === 'compliance')).length;
-        const hasOverdue = tasks.some(t => t.status === 'overdue');
-        const hasUrgent = tasks.some(t => t.status === 'urgent');
-        const noActivityRecent = Math.min(...tasks.map(t => t.lastContactDays)) > 21;
+        const blockerOverdue = tasks.some(t => t.category === 'blocker' && t.daysUntilDue < -3);
+        const criticalOverdue = tasks.filter(t => t.status === 'overdue' && t.category === 'blocker').length;
+        const complianceOverdue = tasks.filter(t => t.status === 'overdue' && t.category === 'compliance').length;
+        const totalOverdue = tasks.filter(t => t.status === 'overdue').length;
+        const hasUrgent = tasks.filter(t => t.status === 'urgent').length;
+        const noActivityRecent = Math.min(...tasks.map(t => t.lastContactDays)) > 30;
         
         let healthStatus = 'healthy';
-        // Only mark as critical if there are serious blockers
-        if (blockerOverdue || criticalOverdue >= 2) {
+        // Only critical if severely blocked
+        if (blockerOverdue || criticalOverdue >= 1 || complianceOverdue >= 2) {
           healthStatus = 'critical';
         } 
-        // Warning if there are overdue tasks or multiple urgent items
-        else if ((hasOverdue && tasks.filter(t => t.status === 'overdue').length >= 2) || 
-                 (hasUrgent && tasks.filter(t => t.status === 'urgent').length >= 3) || 
-                 noActivityRecent) {
+        // Warning if multiple issues piling up
+        else if (totalOverdue >= 3 || hasUrgent >= 4 || noActivityRecent) {
           healthStatus = 'warning';
         }
-        // Otherwise healthy (even with 1 overdue or 1-2 urgent - that's normal operations)
+        // Otherwise healthy - a few overdue/urgent tasks is normal
 
         const riskScore = tasks.reduce((score, task) => {
           let taskScore = 0;
